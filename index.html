@@ -10,6 +10,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            font-size: 2.5rem;
         }
 
         body {
@@ -142,12 +143,12 @@
     <audio id="backgroundMusic" src="musicForMygame.mp3" loop></audio>
 
     <div id="game">
-        <h1 id="pregunta" style="font-size: 1.8em;">¿Cuál será la siguiente pregunta?</h1>
+        <h1 id="pregunta">¿Cuál será la siguiente pregunta?</h1>
 
         <div>
-            <button id="startBtn" onclick="startGame()">Comenzar juego</button>
-            <button id="prevBtn" style="display: none;background-color:palevioletred" onclick="previousQuestion()">Pregunta Anterior</button>
-            <button id="nextBtn" style="display: none; background-color:peachpuff" onclick="nextQuestion()">Siguiente Pregunta</button>
+            <button id="startBtn" onclick="startGame()" style="font-size:4rem;">Comenzar juego</button>
+            <button id="prevBtn" style="display: none;background-color:palevioletred;font-size:4rem;" onclick="previousQuestion()">Pregunta Anterior</button>
+            <button id="nextBtn" style="display: none; background-color:peachpuff;font-size:4rem;" onclick="nextQuestion()">Siguiente Pregunta</button>
         </div>
     </div>
 </body>
