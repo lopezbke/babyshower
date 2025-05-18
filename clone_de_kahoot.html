@@ -1,0 +1,299 @@
+<html>
+    <head>
+        <style>
+            button {
+                min-width: 80px;
+                padding: 10px;
+                margin-bottom: 10px;
+                margin: 10px;
+                font-weight: bolder;
+                border: 3px solid black;
+            }
+            .labelOptions {
+                display: inline-block;
+                width: 160px;
+            }
+            body {
+                background-image: url("happy-dance.gif");
+            }
+            
+            .answerBtns {
+                width: 120px !important;
+            }
+        </style>
+        <script>
+            var mainMusic = null;
+            var interval = null;
+            var isInCountDownLoop = false;
+            var conteo = 0;
+            var conteoInicial = 10;
+            var lista_de_preguntas = [
+                {"pregunta": "Siempre va sobre la tierra sin ensuciarse. ¿Que es?","answer": ["Los Zapatos","La sombra","El agua","El sol"], "correctAnswer": "La sombra"}, // 1
+                {"pregunta": "Cues es el hueso mas grande?","answer": ["Columna vertebral","2","El femul","4"], "correctAnswer": "El femul"}, // 2
+                {"pregunta": "10 * 5 - 44 = ?","answer": ["3","8","6","50"], "correctAnswer": "2"}, // 3
+                {"pregunta": "Cual es el pez mas grande?","answer": ["El Tiburon","La ballena","El calamar","El tiburon ballena"], "correctAnswer": "El tiburon ballena"}, // 4
+                {"pregunta": "Cual es el animal mas grande sobre la superficie terrestre?","answer": ["El leon","La jirafa","El elefante","El hipopotamo"], "correctAnswer": "El elefante"}, // 5
+                {"pregunta": "Como se llama el planta con el anillo?","answer": ["Martes","Saturno","Jupiter","Venus"], "correctAnswer": "Saturno"}, // 6
+                {"pregunta": "Cual es el planeta mas grande?","answer": ["Martes","Tierra","Venus","Jupiter"], "correctAnswer": "Jupiter"}, // 7
+                {"pregunta": "Cual es el planeta mas pequeno?", "answer": ["Pluton","Tierra","Venus","Mercurio"], "correctAnswer": "Mercurio"}, // 8
+                {"pregunta": "Cual es el planeta mas cerca del sol?","answer": ["Pluton","Tierra","Venus","Mercurio"], "correctAnswer": "Mercurio"}, // 9
+                {"pregunta": "Cual es el planeta mas caliente del sistema solar?","answer": ["Martes","Tierra","Venus","Mercurio"], "correctAnswer": "Venus"}, // 10
+            ];
+
+            var players = []
+            var index = 0;
+            var correct_answer = "";
+            var chosen_answer = "";
+            
+            function playAudio(fileName) {
+                var audio = new Audio(fileName);
+                if (fileName === "musicForMygame.mp3") mainMusic = audio;
+                audio.play();
+            }
+
+            function updateCounter() {
+                playAudio("revealFormyGame.mp3");
+                console.log(`Conteo inicial: ${document.getElementById("conteoInicial").value}`)
+                conteoInicial = document.getElementById("conteoInicial").value;
+                document.getElementById("counterOptions").style.display = "none";
+            }
+
+            function addPoints(playerIndex) {
+                playAudio("revealFormyGame.mp3");
+                var pointsToSet = 0;
+                if (conteo <= 0) {
+                    pointsToSet = players[playerIndex].points + 10
+                }
+                else {
+                    pointsToSet = players[playerIndex].points + (10 * conteo)
+                }
+                players[playerIndex].points = pointsToSet;
+                console.log(`Jugador ${ players[playerIndex].playerName} tiene ${ players[playerIndex].points} puntos.`);
+                updateLeaderboard();
+            }
+
+            function substractPoints(playerIndex) {
+                playAudio("revealFormyGame.mp3");
+                var pointsToSet = 0;
+                if (conteo <= 0) {
+                    pointsToSet = players[playerIndex].points - 10
+                }
+                else {
+                    pointsToSet = players[playerIndex].points - (10 * conteo)
+                }
+                players[playerIndex].points = pointsToSet;
+                console.log(`Jugador ${ players[playerIndex].playerName} tiene ${ players[playerIndex].points} puntos.`);
+                updateLeaderboard();
+            }
+
+            function compareByPoints(playerA, playerB) {
+                return playerA.points - playerB.points;
+            }
+            
+            function updateLeaderboard() {
+                console.log("Updating leaderboard.");
+                document.getElementById("leaderboard").innerHTML = "";
+                //players.sort(compareByPoints)
+
+                players.forEach((player) => {
+                    let listItem = document.createElement("li");
+                    let playerName = document.createElement("label");
+                    playerName.style.display = "inline-block";
+                    playerName.style.width = "60px";
+                    playerName.innerHTML = player.playerName;
+                    let playerPoints = document.createElement("label");
+                    playerPoints.innerHTML = player.points;
+
+                    listItem.appendChild(playerName);
+                    listItem.appendChild(playerPoints);
+                    document.getElementById("leaderboard").appendChild(listItem);
+                })
+            }
+
+            function updatePlayerListHtml(player) {
+                let listItem = document.createElement("li");
+                
+                let playerLabel = document.createElement("label");
+                playerLabel.innerHTML = player.playerName;
+                playerLabel.style.display = "inline-block";
+                playerLabel.style.width = "60px";
+
+                let addPointsBtn = document.createElement("button");
+                addPointsBtn.innerHTML = "+";
+                addPointsBtn.style.backgroundColor = "darkseagreen";
+                addPointsBtn.onclick = function () {addPoints(player.playerNumber)};
+
+                let substractPointsBtn = document.createElement("button");
+                substractPointsBtn.innerHTML = "-";
+                substractPointsBtn.style.backgroundColor = "lightcoral";
+                substractPointsBtn.onclick = function () {substractPoints(player.playerNumber)};
+
+                listItem.appendChild(playerLabel);
+                listItem.appendChild(substractPointsBtn);
+                listItem.appendChild(addPointsBtn);
+
+                document.getElementById("listOfPlayers").appendChild(listItem)
+                document.getElementById("newPlayer").value = "";
+            }
+
+            function addPlayer(){
+                playAudio("revealFormyGame.mp3");
+                let newPlayer = document.getElementById("newPlayer").value;
+                if (newPlayer) {
+                    let temp_obj = {"playerName": newPlayer, "points": 0, "playerNumber": players.length}
+                    players.push(temp_obj);
+                    updatePlayerListHtml(temp_obj);
+                }
+                
+            }
+
+            function showCorrectAnswer() {
+                playAudio("revealFormyGame.mp3");
+                if (correct_answer) {
+                    document.getElementById("answers").style.display = "none";
+                    document.getElementById("correctAnswer").innerHTML = correct_answer;
+                    document.getElementById("correctAnswer").style.display = "block";
+                }
+
+            }
+
+            function setChosenAnswer(answer) {
+                chosen_answer = lista_de_preguntas[index].answer[answer];
+                correct_answer = lista_de_preguntas[index].correctAnswer
+                console.log(correct_answer);
+                // Evaluate
+
+                if (chosen_answer === correct_answer) {
+                    console.log("Answer is correct");
+                }
+                else {
+                    console.log("Wrong answer")
+                }
+                clearInterval(interval);
+                mainMusic.pause();
+                isInCountDownLoop = false;
+                updateLeaderboard();
+                index++;
+
+            }
+            function setQuestionsAndAnswers() {
+                if (index >= lista_de_preguntas.length) {
+                    document.getElementById("pregunta").innerHTML = "Se termino el juego";
+                    document.getElementById("answers").style.display = "none";
+                    document.getElementById("correctAnswer").style.display = "none";
+                    document.getElementById("nextBtn").style.display = "none";
+                    document.getElementById("revealBtn").style.display = "none";    
+                    document.getElementById("listOfPlayers").style.display = "none";    
+                    clearInterval(interval);
+                    updateLeaderboard();
+                    document.getElementById("resetBtn").style.display = "block";
+                    return false;
+                }
+                else {
+                    document.getElementById("answers").style.display = "inline";
+                    document.getElementById("correctAnswer").style.display = "none";
+                    document.getElementById("pregunta").innerHTML = lista_de_preguntas[index].pregunta;
+                    document.getElementById("button_one").innerHTML = lista_de_preguntas[index].answer[0];
+                    document.getElementById("button_two").innerHTML = lista_de_preguntas[index].answer[1];
+                    document.getElementById("button_three").innerHTML = lista_de_preguntas[index].answer[2];
+                    document.getElementById("button_four").innerHTML = lista_de_preguntas[index].answer[3];
+                    return true;
+                }
+            }
+
+            function startCountDownInitial() {
+                playAudio("musicForMygame.mp3");
+                document.getElementById("startBtn").style.display = "none";
+                document.getElementById("nextBtn").style.display = "inline-block";
+                document.getElementById("revealBtn").style.display = "inline-block";
+                document.getElementById("counterOptions").style.display = "none";
+                document.getElementById("playerOptions").style.display = "none";
+                document.getElementById("optionsContainer").style.padding = "10px";
+                startCountDown();
+            }
+
+            function startCountDown(){
+                mainMusic.play();
+                if (!setQuestionsAndAnswers() || isInCountDownLoop) {
+                    return;
+                }
+                conteo = conteoInicial;
+                playAudio("hornSound.mp3");
+                document.getElementById("conteo").innerHTML = conteo + "s ";
+                interval = setInterval(function() {
+                    isInCountDownLoop = true;
+                    console.log(index);
+                        // Calculate minutes and seconds
+                        var minutes = Math.floor(conteo / 60);
+                        var seconds = conteo % 60;
+    
+                        // Display the countdown
+                    document.getElementById("conteo").innerHTML = seconds + "s ";
+                    // If the countdown is over
+                    if (conteo <= 0) {
+                        clearInterval(interval);
+                        mainMusic.pause();
+                        document.getElementById("conteo").innerHTML = "Se acabo";
+                        isInCountDownLoop = false;
+                        index++;
+                    }
+                    // Decrease the duration by 1 second
+                    conteo--;
+               }, 1000 );
+            }
+
+        </script>
+    </head>
+    <body>
+        <div style="background-color: white; margin:5%;padding: 40px; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
+            <!-- Leaderboard -->
+            <ul style="list-style: none;" id="leaderboard">
+            </ul>
+            <!-- Juego -->
+            <div id="conteo" style="font-size: 60px; text-align:right;"></div>
+            <div style="text-align: center;"><h1 id="pregunta" style="font-size: 4em;">Cual sera la siguiente pregunta!</h1></div>
+            <div id="answers" style="text-align: center; margin:auto; display:none;">
+                <div style="width: 100%;">
+                    <span style="width: 50%; display:inline;"><button class="answerBtns" id="button_one" onclick="setChosenAnswer(0)" style="background-color: aquamarine;">Contestacion 1</button></span>
+                    <span style="width: 50%; display:inline;"><button class="answerBtns" id="button_two" onclick="setChosenAnswer(1)" style="background-color:burlywood;">Contestacion 2</button></span>
+                </div>
+                <div style="width: 100%;">
+                    <span style="width: 50%; display:inline;"><button class="answerBtns" id="button_three" onclick="setChosenAnswer(2)" style="background-color:cornflowerblue;">Contestacion 3</button></span>
+                    <span style="width: 50%; display:inline;"><button class="answerBtns" id="button_four" onclick="setChosenAnswer(3)" style="background-color:lightcoral;">Contestacion 4</button></span>
+                </div>
+            </div>
+            <div id="correctAnswer" style="text-align: center;font-size: 90px;color:green;"></div>
+            <div style="text-align: center;">
+                <button id="startBtn" onclick="startCountDownInitial()"> Comenzar juego</button>
+                <button id="nextBtn" style="display: none;" onclick="startCountDown()"> Siguiente Pregunta</button>
+                <button id="revealBtn" onclick="showCorrectAnswer()" style="background-color: black; color: white; display: none;">Revelar pregunta</button>
+            </div>
+
+            <br>
+            <br>
+            <!-- Options -->
+            <div id="optionsContainer" style="border: 4px dashed grey; padding: 10vw;">
+                <!-- Add player -->
+                <div id="playerOptions">
+                    <label for="newPlayer" class="labelOptions">Nombre del jugador:</label>
+                    <input id="newPlayer" type="text" style="padding: 10px;">
+                    <button onclick="addPlayer()">Añadir</button>
+                </div>
+
+                <!-- Add or substract points -->
+                <ul id="listOfPlayers" style="list-style:none;">
+                </ul>
+
+                <!-- Setiar conteo -->
+                <div id="counterOptions">
+                    <label for="conteo" class="labelOptions">Conteo inicial en segundos:</label>
+                    <input id="conteoInicial" type="text" style="padding: 10px;">
+                    <button onclick="updateCounter()">Actualizar conteo</button>
+                </div>
+                <div id="resetContainer" style="width: 100%; text-align:center">
+                    <button id="resetBtn" type="reset" onclick="window.location.reload()" style="display: none;">Reiniciar</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

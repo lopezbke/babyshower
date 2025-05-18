@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url("bg.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: pink;
+            font-family: sans-serif;
+        }
+
+        #game {
+            background-color: rgba(255, 255, 255, 0.459);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        button {
+            min-width: 120px;
+            padding: 10px 20px;
+            margin: 10px;
+            font-weight: bold;
+            border: 3px solid black;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        var index = 0;
+        var revealSound = new Audio("revealFormyGame.mp3");
+        var gameEnded = false;
+
+        var lista_de_preguntas = [
+            { "pregunta": "¿Mes y día que nace Celeste?" },
+            { "pregunta": "¿Cuáles son las edades de los padres de la bebé?" },
+            { "pregunta": "¿Cuál es el motivo de decoración del cuarto de la bebé?" },
+            { "pregunta": "¿Cuál es la fecha de cumpleaños de la bebé?" },
+            { "pregunta": "¿En qué pueblo nacieron los padres de la bebé?" },
+            { "pregunta": "¿El papá del hermano del papá de la bebé es?" },
+            { "pregunta": "¿La esposa del hermano del papá de la bebé es?" },
+            { "pregunta": "¿El esposo de la hermana de la mamá de la bebé es?" },
+            { "pregunta": "¿La mamá de la hermana de la mamá de la bebé es?" },
+            { "pregunta": "¿El hijo único del abuelo de la bebé es?" }
+        ];
+
+        function playRevealSound() {
+            revealSound.currentTime = 0;
+            revealSound.play();
+        }
+
+        function setQuestionsAndAnswers() {
+            if (gameEnded) {
+                document.getElementById("pregunta").innerHTML = "¡Se terminó el juego!";
+                document.getElementById("nextBtn").style.display = "none";
+                document.getElementById("prevBtn").style.display = "none";
+
+                const music = document.getElementById("backgroundMusic");
+                music.pause();
+                music.currentTime = 0;
+
+                return;
+            }
+
+            document.getElementById("pregunta").innerHTML = lista_de_preguntas[index].pregunta;
+
+            document.getElementById("nextBtn").style.display = "inline-block";
+            document.getElementById("prevBtn").style.display = (index > 0) ? "inline-block" : "none";
+
+            // If it's the last question, change button label or prepare to end on next click
+            if (index === lista_de_preguntas.length - 1) {
+                document.getElementById("nextBtn").innerText = "Terminar";
+            } else {
+                document.getElementById("nextBtn").innerText = "Siguiente Pregunta";
+            }
+        }
+
+        function startGame() {
+            playRevealSound();
+            document.getElementById("startBtn").style.display = "none";
+            document.getElementById("backgroundMusic").play();
+            setQuestionsAndAnswers();
+        }
+
+        async function nextQuestion() {
+            if (index < lista_de_preguntas.length - 1) {
+                playRevealSound();
+                index++;
+                setQuestionsAndAnswers();
+            } else {
+                // Last question was already shown, now end the game
+                gameEnded = true;
+                setQuestionsAndAnswers();
+
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+                await new Promise(r => setTimeout(r, 2000));
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+                await new Promise(r => setTimeout(r, 2000));
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function previousQuestion() {
+            if (index > 0) {
+                playRevealSound();
+                index--;
+                setQuestionsAndAnswers();
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <audio id="backgroundMusic" src="musicForMygame.mp3" loop></audio>
+
+    <div id="game">
+        <h1 id="pregunta" style="font-size: 1.8em;">¿Cuál será la siguiente pregunta?</h1>
+
+        <div>
+            <button id="startBtn" onclick="startGame()">Comenzar juego</button>
+            <button id="prevBtn" style="display: none;background-color:palevioletred" onclick="previousQuestion()">Pregunta Anterior</button>
+            <button id="nextBtn" style="display: none; background-color:peachpuff" onclick="nextQuestion()">Siguiente Pregunta</button>
+        </div>
+    </div>
+</body>
+
+</html>
